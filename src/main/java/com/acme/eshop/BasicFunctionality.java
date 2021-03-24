@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static java.lang.System.exit;
@@ -28,17 +30,23 @@ public class BasicFunctionality {
 		// Start H2 database server
 		dbInstance.startH2Server();
 
-		// Create tables of the project
-		demo.createTable();
+		// Iitial load of reference tables
+		if (demo.createTable()) {
+			demo.insertRefTables();
+		}
 
 		//BASIC FUNCTIONALITY-STEP1
-		//CREATE A LIST OF  PRODUCTS
-		demo.insertProducts();
 		//LOAD PRODUCTS IN ORDER TO BE SEEN BY THE USERS
 		demo.loadProducts();
 
 		//A NEW CUSTOMER MAKES AN ACCOUNT
-		//demo.insertNewCustomer();
+		demo.CreateNewCustomer();
+
+		//A CUSTOMER MAKES AN ORDER,DISCOUNT IS CALCULATED AND AFTER THE PAYMENT IS DONE ORDER IS FINALIZED
+		demo.CheckPe();
+		demo.CreateOrder();
+		demo.GetDiscount();
+		demo.FinalizeOrder();
 
 		// Stop H2 database server via shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> dbInstance.stopH2Server()));
@@ -60,7 +68,7 @@ public class BasicFunctionality {
 		}
 	}
 
-	private void createTable() {
+	private boolean createTable() {
 		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement()) {
 			int resultRows = statement.executeUpdate(sqlCommands.getProperty("create.table.001"));
 			resultRows = statement.executeUpdate(sqlCommands.getProperty("create.table.002"));
@@ -68,14 +76,17 @@ public class BasicFunctionality {
 			resultRows = statement.executeUpdate(sqlCommands.getProperty("create.table.004"));
 			resultRows = statement.executeUpdate(sqlCommands.getProperty("create.table.005"));
 			resultRows = statement.executeUpdate(sqlCommands.getProperty("create.table.006"));
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("create.table.007"));
 
 			logger.debug("Tables created {}.", resultRows);
+			return true;
 		} catch (SQLException throwables) {
-			logger.error("Error creating Tables:", throwables);
+			logger.debug("Error creating Tables:", throwables);
+			return false;
 		}
 	}
 
-	private void insertProducts() {
+	private void insertRefTables() {
 		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement()) {
 			int resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.001"));
 			logger.debug("Statement returned {}.", resultRows);
@@ -88,6 +99,26 @@ public class BasicFunctionality {
 			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.005"));
 			logger.debug("Statement returned {}.", resultRows);
 			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.006"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.007"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.008"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.009"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.010"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.011"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.012"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.013"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.014"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.015"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.016"));
 			logger.debug("Statement returned {}.", resultRows);
 
 		} catch (SQLException throwables) {
@@ -107,6 +138,81 @@ public class BasicFunctionality {
 			}
 		} catch (SQLException throwables) {
 			logger.error("Error occurred while retrieving products", throwables);
+		}
+	}
+
+	private void CreateNewCustomer() {
+		try (PreparedStatement preparedStatement = ConnectionPoolProvider.getConnection().prepareStatement(
+				sqlCommands.getProperty("insert.table.000"))) {
+			generateData(preparedStatement, 1);
+
+			int[] affectedRows = preparedStatement.executeBatch();
+			logger.debug("Rows inserted {}.", Arrays.stream(affectedRows).sum());
+
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while batch inserting data.", throwables);
+		}
+	}
+
+	private void generateData(PreparedStatement preparedStatement, int howMany) throws SQLException {
+		for (int i = 1; i <= howMany; i++) {
+			preparedStatement.clearParameters();
+
+			preparedStatement.setLong(1, 1005 + i);
+			preparedStatement.setString(2, generator.getFirstName());
+			preparedStatement.setString(3, generator.getLastName());
+			preparedStatement.setString(4, generator.getEmail());
+			preparedStatement.addBatch();
+		}
+	}
+
+	private void CheckPe() {
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement();
+			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.001"))) {
+
+			while (resultSet.next()) {
+				//@formatter:off
+				logger.error("A Pending order exists for the customer");
+				//@formatter:on
+			}
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while retrieving products", throwables);
+		}
+	}
+
+	private void CreateOrder() {
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement()) {
+			int resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.017"));
+			logger.debug("Statement returned {}.", resultRows);
+			resultRows = statement.executeUpdate(sqlCommands.getProperty("insert.table.018"));
+			logger.debug("Statement returned {}.", resultRows);
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while inserting data.", throwables);
+		}
+	}
+
+	private void GetDiscount() {
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement();
+			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.002"))) {
+
+			while (resultSet.next()) {
+				//@formatter:off
+				logger.info("C1:{}", resultSet.getInt("C1"));
+				//@formatter:on
+			}
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while retrieving products", throwables);
+		}
+	}
+
+	private void FinalizeOrder() {
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement()) {
+			int resultRows = statement.executeUpdate(sqlCommands.getProperty("update.table.001"));
+
+			logger.debug("Rows updated {}.", resultRows);
+
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while updating data.", throwables);
 		}
 	}
 
