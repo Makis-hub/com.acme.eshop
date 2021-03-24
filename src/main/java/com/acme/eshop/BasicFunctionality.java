@@ -128,7 +128,7 @@ public class BasicFunctionality {
 
 	private void loadProducts() {
 		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement();
-			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.001"))) {
+			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.003"))) {
 
 			while (resultSet.next()) {
 				//@formatter:off
