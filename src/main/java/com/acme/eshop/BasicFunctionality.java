@@ -28,7 +28,7 @@ public class BasicFunctionality {
 		dbInstance.startH2Server();
 
 		// Create tables of the project
-		demo.createTable();
+		//demo.createTable();
 
 		// Stop H2 database server via shutdown hook
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> dbInstance.stopH2Server()));
@@ -61,7 +61,7 @@ public class BasicFunctionality {
 
 			logger.debug("Tables created {}.", resultRows);
 		} catch (SQLException throwables) {
-			logger.warn("Unable to create Tables. They are already existed.");
+			logger.error("Error creating Tables:", throwables);
 		}
 	}
 
