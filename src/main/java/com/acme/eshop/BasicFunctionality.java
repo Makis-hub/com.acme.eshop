@@ -42,11 +42,15 @@ public class BasicFunctionality {
 		//A NEW CUSTOMER MAKES AN ACCOUNT
 		demo.CreateNewCustomer();
 
+		//ORDER-STEP2
 		//A CUSTOMER MAKES AN ORDER,DISCOUNT IS CALCULATED AND AFTER THE PAYMENT IS DONE ORDER IS FINALIZED
 		demo.CheckPe();
 		demo.CreateOrder();
 		demo.GetDiscount();
 		demo.FinalizeOrder();
+
+		//REPORTS-STEP3
+		demo.ReportsCreation();
 
 		// Stop H2 database server via shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> dbInstance.stopH2Server()));
@@ -213,6 +217,47 @@ public class BasicFunctionality {
 
 		} catch (SQLException throwables) {
 			logger.error("Error occurred while updating data.", throwables);
+		}
+	}
+
+	private void ReportsCreation() {
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement();
+			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.004"))) {
+
+			while (resultSet.next()) {
+				//@formatter:off
+				logger.info("CUSTID:{},C2:{},C3:{}", resultSet.getLong("CUSTID"), resultSet.getBigDecimal("C2"),
+							resultSet.getBigDecimal("C3"));
+				//@formatter:on
+			}
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while retrieving for data per customer", throwables);
+		}
+
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement();
+			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.005"))) {
+
+			while (resultSet.next()) {
+				//@formatter:off
+				logger.info("CUSTCATEGORY:{},C2:{},C3:{}", resultSet.getString("CUSTCATEGORY"),
+							resultSet.getBigDecimal("C2"), resultSet.getBigDecimal("C3"));
+				//@formatter:on
+			}
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while retrieving for data per customer category", throwables);
+		}
+
+		try (Statement statement = ConnectionPoolProvider.getConnection().createStatement();
+			 ResultSet resultSet = statement.executeQuery(sqlCommands.getProperty("select.table.006"))) {
+
+			while (resultSet.next()) {
+				//@formatter:off
+				logger.info("PAYMENTTYPE:{},C2:{},C3:{}", resultSet.getString("PAYMENTTYPE"),
+							resultSet.getBigDecimal("C2"), resultSet.getBigDecimal("C3"));
+				//@formatter:on
+			}
+		} catch (SQLException throwables) {
+			logger.error("Error occurred while retrieving for data per payment type", throwables);
 		}
 	}
 

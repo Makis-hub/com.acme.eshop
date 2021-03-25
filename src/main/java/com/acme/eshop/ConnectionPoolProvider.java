@@ -22,10 +22,10 @@ public class ConnectionPoolProvider {
 		config.setPassword(DB_PASSWORD);
 
 		config.setConnectionTimeout(10000);
-		config.setIdleTimeout(60000);
+		config.setIdleTimeout(600000);
 		config.setMaxLifetime(1800000);
-		config.setMinimumIdle(1);
-		config.setMaxLifetime(5);
+		config.setMinimumIdle(10);
+		config.setMaxLifetime(100);
 		config.setAutoCommit(true);
 
 		config.addDataSourceProperty("cachePrepStmts", "true");
